@@ -3,83 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커스텀 디데이</title>
+    <title>디데이 계산</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             height: 100vh;
-            background-color: #EDF2EC; /* 기본 배경색 */
-            color: #438261; /* 기본 텍스트 색 */
+            background-color: #EDF2EC; /* 배경색 */
             font-family: Arial, sans-serif;
+            position: relative;
         }
 
-        .container {
-            text-align: center;
+        /* 좌측 상단 날짜 스타일 */
+        .date-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 100px;
+            color: #438261;
         }
 
-        h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-
-        #count {
-            font-size: 50px;
+        /* 우측 하단 디데이 스타일 */
+        .count-display {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 300px;
             font-weight: bold;
+            color: #438261;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>디데이 계산기</h1>
-        <div id="count">D+??</div>
-    </div>
+    <div class="date-display" id="date-display">YYYY-MM-DD</div>
+    <div class="count-display" id="count-display">D+??</div>
 
-    <script src="app.js"></script>
+    <script>
+        // 목표 날짜 설정 (여기서 날짜를 변경하면 D-Day가 바뀜)
+        const goalDate = "2024-12-09";
+
+        // 날짜 표시 업데이트
+        document.getElementById("date-display").textContent = goalDate;
+
+        // D-Day 계산 함수
+        function calculateDday() {
+            const today = new Date(); // 현재 시간
+            const targetDate = new Date(goalDate); // 목표 시간
+            const diffTime = today - targetDate; // 밀리초 차이 계산
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // 일 단위로 변환
+            return diffDays >= 0 ? `D+${diffDays+2}` : `D${diffDays-2}`; // D+N 또는 D-N 형태 반환
+        }
+
+        // 실시간 디데이 업데이트
+        function updateDday() {
+            const countElement = document.getElementById("count-display");
+            countElement.textContent = calculateDday();
+        }
+
+        // 1초마다 디데이 업데이트
+        setInterval(updateDday, 1000);
+
+        // 페이지 로드 시 초기화
+        updateDday();
+    </script>
 </body>
 </html>
-function getQueryParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-        date: params.get('date'), // 디데이 날짜
-        text: params.get('text'), // 텍스트 색상
-        background: params.get('background'), // 배경색상
-    };
-}
-function calculateDday(targetDate) {
-    const now = new Date().getTime();
-    const goal = new Date(targetDate).getTime();
-    const distance = now - goal;
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    return days >= 0 ? `D+${days}` : `D-${Math.abs(days)}`;
-}
-function applyCustomizations(params) {
-    // URL 매개변수에서 스타일 정보 적용
-    if (params.background) {
-        document.body.style.backgroundColor = `#${params.background}`;
-    }
-    if (params.text) {
-        document.body.style.color = `#${params.text}`;
-    }
-
-    // 디데이 계산 및 표시
-    const countElement = document.getElementById('count');
-    if (params.date) {
-        countElement.textContent = calculateDday(params.date);
-    } else {
-        countElement.textContent = "날짜를 설정하세요!";
-    }
-}
-// main script
-const params = getQueryParams();
-applyCustomizations(params);
-
-// 실시간 업데이트 (1초 간격)
-setInterval(() => {
-    if (params.date) {
-        document.getElementById('count').textContent = calculateDday(params.date);
-    }
-}, 1000);
