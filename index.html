@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커스텀 디데이</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #EDF2EC; /* 기본 배경색 */
+            color: #438261; /* 기본 텍스트 색 */
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        #count {
+            font-size: 50px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>디데이 계산기</h1>
+        <div id="count">D+??</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+function getQueryParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        date: params.get('date'), // 디데이 날짜
+        text: params.get('text'), // 텍스트 색상
+        background: params.get('background'), // 배경색상
+    };
+}
+function calculateDday(targetDate) {
+    const now = new Date().getTime();
+    const goal = new Date(targetDate).getTime();
+    const distance = now - goal;
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    return days >= 0 ? `D+${days}` : `D-${Math.abs(days)}`;
+}
+function applyCustomizations(params) {
+    // URL 매개변수에서 스타일 정보 적용
+    if (params.background) {
+        document.body.style.backgroundColor = `#${params.background}`;
+    }
+    if (params.text) {
+        document.body.style.color = `#${params.text}`;
+    }
+
+    // 디데이 계산 및 표시
+    const countElement = document.getElementById('count');
+    if (params.date) {
+        countElement.textContent = calculateDday(params.date);
+    } else {
+        countElement.textContent = "날짜를 설정하세요!";
+    }
+}
+// main script
+const params = getQueryParams();
+applyCustomizations(params);
+
+// 실시간 업데이트 (1초 간격)
+setInterval(() => {
+    if (params.date) {
+        document.getElementById('count').textContent = calculateDday(params.date);
+    }
+}, 1000);
